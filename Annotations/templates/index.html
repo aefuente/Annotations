@@ -1,0 +1,177 @@
+<html>
+<link rel="stylesheet" href="index.css">   
+<head>
+    <title>Annotation App</title>
+</head>
+<body>
+    <div align="right">
+    <a href="/">Home</a>
+    |<a href="/files">Gallery</a>
+    </div>
+    <hr>
+    <script type="text/javascript">
+        
+    function new_button(){
+            var elements = document.getElementById("new_object").elements;
+            var item = elements.item(0).value;
+            var but = document.createElement("BUTTON");
+            but.innerHTML = item;
+            but.id = item;
+            but.style = "height: 25px; width: 100px;"
+            but.clicked = false;
+            but.addEventListener('click', function() {button_click(item); });
+            var element = document.getElementById("btn-group");
+            element.appendChild(but);
+        }
+    </script>
+    
+    
+    <form id="new_object" onSubmit="new_button(); reset(); return false;">
+            <label for="object">Object: </label><br>
+            <input type="text" id="object" name="object"><br>
+        </form>
+
+    
+    <div class="btn-group" id="btn-group"></div>
+    
+    
+    <canvas id="canvas" width="750" height="450" style="border: 5px solid #000000;">
+        
+        
+    <script type="text/javascript">
+        
+        var canvas = document.getElementById('canvas'),
+        ctx = canvas.getContext('2d'),
+        object_list = [],
+        rect = {},
+        drag = false,
+        mouseX, 
+        mouseY,
+        closeEnough = 10,
+        object,
+        dragTL=dragBL=dragTR=dragBR=false;
+        
+        function button_click(item){
+            document.getElementById(item).clicked = !document.getElementById(item).clicked;
+            if (document.getElementById(item).clicked){
+                init();
+            }
+            else
+                dinit();
+            object = item;
+            console.log("clicked");
+        }
+        
+        function init() {
+          canvas.addEventListener('mousedown', mouseDown, false);
+          canvas.addEventListener('mouseup', mouseUp, false);
+          canvas.addEventListener('mousemove', mouseMove, false);
+        }
+        
+        function dinit() {
+            canvas.removeEventListener('mousedown', mouseDown, false);
+            canvas.removeEventListener('mouseup', mouseUp, false);
+            canvas.removeEventListener('mousemove', mouseMove, false);
+            rect.w = undefined;
+        }
+
+
+        function mouseDown(e) {
+          mouseX = e.pageX - this.offsetLeft;
+          mouseY = e.pageY - this.offsetTop;
+
+          // if there isn't a rect yet
+          if(rect.w === undefined){
+            rect.startX = mouseX;
+            rect.startY = mouseY;
+            dragBR = true;
+          }
+
+          // if there is, check which corner
+          //   (if any) was clicked
+          //
+          // 4 cases:
+          // 1. top left
+          else if( checkCloseEnough(mouseX, rect.startX) && checkCloseEnough(mouseY, rect.startY) ){
+            dragTL = true;
+          }
+          // 2. top right
+          else if( checkCloseEnough(mouseX, rect.startX+rect.w) && checkCloseEnough(mouseY, rect.startY) ){
+            dragTR = true;
+
+          }
+          // 3. bottom left
+          else if( checkCloseEnough(mouseX, rect.startX) && checkCloseEnough(mouseY, rect.startY+rect.h) ){
+            dragBL = true;
+
+          }
+          // 4. bottom right
+          else if( checkCloseEnough(mouseX, rect.startX+rect.w) && checkCloseEnough(mouseY, rect.startY+rect.h) ){
+            dragBR = true;
+
+          }
+          // (5.) none of them
+          else {
+            // handle not resizing
+            object_list.push([object,rect]);
+            rect.w = undefined;
+            
+          }
+
+          ctx.clearRect(0,0,canvas.width,canvas.height);
+          draw();
+
+        }
+
+            function checkCloseEnough(p1, p2){
+              return Math.abs(p1-p2)<closeEnough;
+            }
+            function mouseUp() {
+              dragTL = dragTR = dragBL = dragBR = false;
+            }
+
+            function mouseMove(e) {
+              mouseX = e.pageX - this.offsetLeft;
+              mouseY = e.pageY - this.offsetTop;
+              if(dragTL){
+                rect.w += rect.startX-mouseX;
+                rect.h += rect.startY-mouseY;
+                rect.startX = mouseX;
+                rect.startY = mouseY;
+              } else if(dragTR) {
+                rect.w = Math.abs(rect.startX-mouseX);
+                rect.h += rect.startY-mouseY;
+                rect.startY = mouseY;
+              } else if(dragBL) {
+                rect.w += rect.startX-mouseX;
+                rect.h = Math.abs(rect.startY-mouseY);
+                rect.startX = mouseX;  
+              } else if(dragBR) {
+                rect.w = Math.abs(rect.startX-mouseX);
+                rect.h = Math.abs(rect.startY-mouseY);
+              }
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                draw();
+            }
+
+        
+        
+            function draw() {
+              for (let i = 0; i < object_list.length; i++){
+                  tmp_rect = object_list[i][1];
+                  tmp_object = object_list[i][0]
+                  ctx.strokeRect(tmp_rect.startX, tmp_rect.startY, tmp_rect.w, tmp_rect.h);
+                  ctx.font = '18px serif';
+                  ctx.fillText(tmp_object, tmp_rect.startX, tmp_rect.startY-2);
+              }
+              ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
+              ctx.font = '18px serif';
+              ctx.fillText(object, rect.startX, rect.startY-2);
+            }
+        
+        
+    </script>
+    </canvas>
+    
+</body>
+</html>
