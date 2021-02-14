@@ -43,8 +43,8 @@
         var canvas = document.getElementById('canvas'),
         ctx = canvas.getContext('2d'),
         object_list = [],
-        rect = {},
         drag = false,
+        to_edit = 0,
         mouseX, 
         mouseY,
         closeEnough = 10,
@@ -72,55 +72,65 @@
             canvas.removeEventListener('mousedown', mouseDown, false);
             canvas.removeEventListener('mouseup', mouseUp, false);
             canvas.removeEventListener('mousemove', mouseMove, false);
-            rect.w = undefined;
         }
 
 
         function mouseDown(e) {
-          mouseX = e.pageX - this.offsetLeft;
-          mouseY = e.pageY - this.offsetTop;
+            mouseX = e.pageX - this.offsetLeft-5;
+            mouseY = e.pageY - this.offsetTop-5;
+            let found = false;
 
-          // if there isn't a rect yet
-          if(rect.w === undefined){
-            rect.startX = mouseX;
-            rect.startY = mouseY;
-            dragBR = true;
-          }
-
-          // if there is, check which corner
-          //   (if any) was clicked
-          //
-          // 4 cases:
-          // 1. top left
-          else if( checkCloseEnough(mouseX, rect.startX) && checkCloseEnough(mouseY, rect.startY) ){
-            dragTL = true;
-          }
-          // 2. top right
-          else if( checkCloseEnough(mouseX, rect.startX+rect.w) && checkCloseEnough(mouseY, rect.startY) ){
-            dragTR = true;
-
-          }
-          // 3. bottom left
-          else if( checkCloseEnough(mouseX, rect.startX) && checkCloseEnough(mouseY, rect.startY+rect.h) ){
-            dragBL = true;
-
-          }
-          // 4. bottom right
-          else if( checkCloseEnough(mouseX, rect.startX+rect.w) && checkCloseEnough(mouseY, rect.startY+rect.h) ){
-            dragBR = true;
-
-          }
-          // (5.) none of them
-          else {
-            // handle not resizing
-            object_list.push([object,rect]);
-            rect.w = undefined;
             
-          }
-
-          ctx.clearRect(0,0,canvas.width,canvas.height);
-          draw();
-
+            for (let i = 0; i < object_list.length; i++){
+                tmp_rect = object_list[i][1];
+                tmp_object = object_list[i][0];
+                
+                if( checkCloseEnough(mouseX, tmp_rect.startX) && checkCloseEnough(mouseY, tmp_rect.startY) ){
+                    dragTL = true;
+                    to_edit = i;
+                }
+                else if( checkCloseEnough(mouseX, tmp_rect.startX+tmp_rect.w) && checkCloseEnough(mouseY, tmp_rect.startY) ){
+                    dragTR = true;
+                    to_edit = i;
+                }
+              // 3. bottom left
+                else if( checkCloseEnough(mouseX, tmp_rect.startX) && checkCloseEnough(mouseY, tmp_rect.startY+tmp_rect.h) ){
+                    dragBL = true;
+                    to_edit = i;
+                }
+              // 4. bottom right
+                else if( checkCloseEnough(mouseX, tmp_rect.startX+tmp_rect.w) && checkCloseEnough(mouseY, tmp_rect.startY+tmp_rect.h) ){
+                    dragBR = true;
+                    to_edit = i;
+                }
+                
+            }
+            
+            found = dragTL || dragTR || dragBL || dragBR;
+            
+            if (!found){
+                to_edit = object_list.length-1;
+                if (object_list.length > 0){
+                    to_edit +=1;
+                    var tmp_rect = {}
+                    tmp_rect.startX = mouseX;
+                    tmp_rect.startY = mouseY;
+                    object_list.push([object,tmp_rect]);
+                }
+                
+                else if(object_list.length == 0){
+                    to_edit = 0;
+                    var tmp_rect = {}
+                    tmp_rect.startX = mouseX;
+                    tmp_rect.startY = mouseY;
+                    
+                    object_list.push([object,tmp_rect]);
+                }               
+            
+                console.log(to_edit)
+                dragBR = true;
+            }
+            
         }
 
             function checkCloseEnough(p1, p2){
@@ -131,24 +141,27 @@
             }
 
             function mouseMove(e) {
-              mouseX = e.pageX - this.offsetLeft;
-              mouseY = e.pageY - this.offsetTop;
+              mouseX = e.pageX - this.offsetLeft-5;
+              mouseY = e.pageY - this.offsetTop-5;
+              if (object_list.length ==  0){
+                  return;
+              }
               if(dragTL){
-                rect.w += rect.startX-mouseX;
-                rect.h += rect.startY-mouseY;
-                rect.startX = mouseX;
-                rect.startY = mouseY;
+                object_list[to_edit][1].w += object_list[to_edit][1].startX-mouseX;
+                object_list[to_edit][1].h += object_list[to_edit][1].startY-mouseY;
+                object_list[to_edit][1].startX = mouseX;
+                object_list[to_edit][1].startY = mouseY;
               } else if(dragTR) {
-                rect.w = Math.abs(rect.startX-mouseX);
-                rect.h += rect.startY-mouseY;
-                rect.startY = mouseY;
+                object_list[to_edit][1].w = Math.abs(object_list[to_edit][1].startX-mouseX);
+                object_list[to_edit][1].h += object_list[to_edit][1].startY-mouseY;
+                object_list[to_edit][1].startY = mouseY;
               } else if(dragBL) {
-                rect.w += rect.startX-mouseX;
-                rect.h = Math.abs(rect.startY-mouseY);
-                rect.startX = mouseX;  
+                object_list[to_edit][1].w += object_list[to_edit][1].startX-mouseX;
+                object_list[to_edit][1].h = Math.abs(object_list[to_edit][1].startY-mouseY);
+                object_list[to_edit][1].startX = mouseX;  
               } else if(dragBR) {
-                rect.w = Math.abs(rect.startX-mouseX);
-                rect.h = Math.abs(rect.startY-mouseY);
+                object_list[to_edit][1].w = Math.abs(object_list[to_edit][1].startX-mouseX);
+                object_list[to_edit][1].h = Math.abs(object_list[to_edit][1].startY-mouseY);
               }
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 draw();
@@ -164,9 +177,9 @@
                   ctx.font = '18px serif';
                   ctx.fillText(tmp_object, tmp_rect.startX, tmp_rect.startY-2);
               }
-              ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
-              ctx.font = '18px serif';
-              ctx.fillText(object, rect.startX, rect.startY-2);
+              //ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
+              //ctx.font = '18px serif';
+              //ctx.fillText(object, rect.startX, rect.startY-2);
             }
         
         
