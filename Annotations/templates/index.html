@@ -1,6 +1,7 @@
 <html>
-<link rel="stylesheet" href="index.css">   
-<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/css/index.css' %}">
+    <head>
     <title>Annotation App</title>
 </head>
 <body>
@@ -34,8 +35,14 @@
     
     <div class="btn-group" id="btn-group"></div>
     
+    <iframe height="1080" src="{% static '/images/000000.jpg' %}">
+        <p> hello? </p>
+    </iframe>
+
+
+
     
-    <canvas id="canvas" width="750" height="450" style="border: 5px solid #000000;">
+    <canvas id="canvas" width="1440" height="1080" style="border: 5px solid #000000;">
         
         
     <script type="text/javascript">
