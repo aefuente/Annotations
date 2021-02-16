@@ -1,0 +1,7 @@
+<html>
+    <body>
+      {% for image in images %}
+      <div> <input type="image" style="width:275px;height:200px" src="/static/images/{{image}}" href ="#" onclick="parent.display_image('{{image}}')" /> </div>
+      {% endfor %}
+    </body>
+</html>

@@ -11,7 +11,6 @@
     </div>
     <hr>
     <script type="text/javascript">
-        
     function new_button(){
             var elements = document.getElementById("new_object").elements;
             var item = elements.item(0).value;
@@ -34,10 +33,9 @@
 
     
     <div class="btn-group" id="btn-group"></div>
-    
-    <iframe height="1080" src="{% static '/images/000000.jpg' %}">
-        <p> hello? </p>
-    </iframe>
+
+
+    <iframe  height="1080" src="http://aefuentes.com/images"></iframe>
 
 
 
@@ -46,11 +44,11 @@
         
         
     <script type="text/javascript">
-        
         var canvas = document.getElementById('canvas'),
         ctx = canvas.getContext('2d'),
         object_list = [],
         drag = false,
+        background = new Image(),
         to_edit = 0,
         mouseX, 
         mouseY,
@@ -67,6 +65,13 @@
                 dinit();
             object = item;
             console.log("clicked");
+        }
+        
+        function display_image(image){
+            background.src = "/static/images/" + image;
+
+            ctx.drawImage(background,0,0);
+        
         }
         
         function init() {
@@ -177,13 +182,18 @@
         
         
             function draw() {
+            
+              ctx.drawImage(background,0,0);
               for (let i = 0; i < object_list.length; i++){
                   tmp_rect = object_list[i][1];
                   tmp_object = object_list[i][0]
+                  ctx.strokeStyle="#66ff00ff"
+      
                   ctx.strokeRect(tmp_rect.startX, tmp_rect.startY, tmp_rect.w, tmp_rect.h);
                   ctx.font = '18px serif';
                   ctx.fillText(tmp_object, tmp_rect.startX, tmp_rect.startY-2);
               }
+
               //ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
               //ctx.font = '18px serif';
               //ctx.fillText(object, rect.startX, rect.startY-2);

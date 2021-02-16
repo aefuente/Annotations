@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['www.aefuentes.com', 'aefuentes.com']
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Application definition
 
