@@ -1,7 +1,11 @@
 <html>
     <body>
-      {% for image in images %}
-      <div> <input type="image" style="width:275px;height:200px" src="/static/images/{{image}}" href ="#" onclick="parent.display_image('{{image}}')" /> </div>
+      {% for image in images %} 
+      <script>
+          parent.set_image_list('{{image}}');
+            
+      </script>
+      <div id="{{image}}"> <input type="image" style="width:275px;height:200px" src="/static/images/{{image}}" href ="#" onclick="parent.display_image('{{image}}'); parent.reset_annotations()" /> </div>
       {% endfor %}
     </body>
 </html>

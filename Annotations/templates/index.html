@@ -35,16 +35,19 @@
     <div class="btn-group" id="btn-group"></div>
 
 
-    <iframe  height="1080" src="http://aefuentes.com/images"></iframe>
+    <iframe id="iframe"  height="1080" src="http://aefuentes.com/images"></iframe>
 
 
 
     
     <canvas id="canvas" width="1440" height="1080" style="border: 5px solid #000000;">
+
         
         
     <script type="text/javascript">
         var canvas = document.getElementById('canvas'),
+        image_list = [],
+        current_img,
         ctx = canvas.getContext('2d'),
         object_list = [],
         drag = false,
@@ -55,21 +58,49 @@
         closeEnough = 10,
         object,
         dragTL=dragBL=dragTR=dragBR=false;
-        
-        function button_click(item){
-            document.getElementById(item).clicked = !document.getElementById(item).clicked;
-            if (document.getElementById(item).clicked){
-                init();
+       
+        function set_image_list(image){
+            image_list.push(image)
+        }
+
+        function find_pos(image){
+            for (let i = 0; i < image_list.length; i++){
+                if (image_list[i] == image)
+                    return i;
             }
-            else
-                dinit();
+            return 0;
+        }
+
+        function next_image(){
+             let index  = find_pos(current_img);
+             display_image(image_list[index+1]);
+
+        }
+
+        function export_current(){
+            let tmp = current_img;
+
+            next_image();
+            image_list.splice(find_pos(tmp),1);
+            document.getElementById('iframe').contentWindow.document.getElementById(tmp).remove();
+
+            reset_annotations();
+            draw();
+        }
+
+        function button_click(item){
+                init();
             object = item;
             console.log("clicked");
+        }
+
+        function reset_annotations(){
+            object_list = []
         }
         
         function display_image(image){
             background.src = "/static/images/" + image;
-
+            current_img = image;
             ctx.drawImage(background,0,0);
         
         }
@@ -79,13 +110,7 @@
           canvas.addEventListener('mouseup', mouseUp, false);
           canvas.addEventListener('mousemove', mouseMove, false);
         }
-        
-        function dinit() {
-            canvas.removeEventListener('mousedown', mouseDown, false);
-            canvas.removeEventListener('mouseup', mouseUp, false);
-            canvas.removeEventListener('mousemove', mouseMove, false);
-        }
-
+       
 
         function mouseDown(e) {
             mouseX = e.pageX - this.offsetLeft-5;
@@ -188,20 +213,20 @@
                   tmp_rect = object_list[i][1];
                   tmp_object = object_list[i][0]
                   ctx.strokeStyle="#66ff00ff"
-      
+                  ctx.lineWidth=5;
                   ctx.strokeRect(tmp_rect.startX, tmp_rect.startY, tmp_rect.w, tmp_rect.h);
-                  ctx.font = '18px serif';
+                  ctx.font = '28px serif';
+                  ctx.fillStyle="#66ff00";
                   ctx.fillText(tmp_object, tmp_rect.startX, tmp_rect.startY-2);
               }
 
-              //ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
-              //ctx.font = '18px serif';
-              //ctx.fillText(object, rect.startX, rect.startY-2);
             }
         
         
     </script>
     </canvas>
-    
+        <button id="export" style="vertical-align:top" onclick="export_current()"> Export</button>
+        <button id="next" style="width:100px;height:50px;" onclick="next_image()"> Next</button>
+
 </body>
 </html>
