@@ -79,7 +79,14 @@
 
         function export_current(){
             let tmp = current_img;
-
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://aefuentes.com/makexml",true);
+            xhr.setRequestHeader('image', tmp);
+            xhr.send(JSON.stringify({
+                image: tmp,
+                objects: object_list
+            }));
+            console.log("trying to send");
             next_image();
             image_list.splice(find_pos(tmp),1);
             document.getElementById('iframe').contentWindow.document.getElementById(tmp).remove();
@@ -225,7 +232,7 @@
         
     </script>
     </canvas>
-        <button id="export" style="vertical-align:top" onclick="export_current()"> Export</button>
+        <button id="export" style="width:100px;height:50px;vertical-align:top" onclick="export_current()"> Export</button>
         <button id="next" style="width:100px;height:50px;" onclick="next_image()"> Next</button>
 
 </body>
